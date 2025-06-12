@@ -1,0 +1,37 @@
+body {
+    margin: 0;
+    background-color: #eaf7f4;
+    font-family: sans-serif;
+  }
+  
+  /* ロゴ全体の初期表示 */
+  #splash {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #eaf7f4;
+    animation: fadeOut 1s ease 2s forwards;
+  }
+  
+  #logo {
+    width: 180px;
+    animation: bounce 1s ease;
+  }
+  
+  /* バウンドアニメーション */
+  @keyframes bounce {
+    0%   { transform: scale(0.5); opacity: 0; }
+    60%  { transform: scale(1.2); opacity: 1; }
+    80%  { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
+  
+  /* フェードアウト */
+  @keyframes fadeOut {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+  

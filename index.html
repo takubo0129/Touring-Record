@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Touring Record</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ローディングロゴ -->
+  <div id="splash">
+    <img src="Touring Record ロゴ.png" alt="Touring Record Logo" id="logo">
+  </div>
+
+  <!-- メインアプリ画面（最初は非表示） -->
+  <div id="main" style="display: none;">
+    <!-- ↓ここにフォーム本体やマップなどを入れる -->
+    <h1 style="text-align:center;">🏍 Touring Record フォーム本体</h1>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Touring Record</title>
+  <style>
+    body {
+      background: #eaf7f4;
+      font-family: sans-serif;
+      margin: 0;
+    }
+
+    header {
+      background: #4caf50;
+      color: white;
+      text-align: center;
+      padding: 1em;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    label, input, textarea, select, button {
+      display: block;
+      width: 100%;
+      margin-top: 12px;
+      font-size: 16px;
+    }
+
+    input, textarea, select {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .submit-btn {
+      background: #8d6e63;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .submit-btn:hover {
+      background: #6d4c41;
+    }
+
+    #map {
+      height: 300px;
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🏍 Touring Record</h1>
+    <p>あなたのツーリングを記録しよう</p>
+  </header>
+
+  <div class="container">
+    <label>📅 日付</label>
+    <input type="date" id="tourDate">
+
+    <label>📍 出発地</label>
+    <input type="text" id="departure" placeholder="例：横浜駅">
+
+    <label>📍 目的地</label>
+    <input type="text" id="destination" placeholder="例：芦ノ湖スカイライン">
+
+    <button onclick="showRoute()">📌 地図に表示</button>
+    <div id="map"></div>
+
+    <label>📏 距離（km）</label>
+    <input type="number" id="distance">
+
+    <label>⏰ 出発時間</label>
+    <input type="time" id="startTime">
+
+    <label>⏰ 帰宅時間</label>
+    <input type="time" id="endTime">
+
+    <label>💸 費用（円）</label>
+    <input type="number" id="cost">
+
+    <label>🛣️ コース</label>
+    <textarea id="route" rows="3"></textarea>
+
+    <label>🌟 満足度</label>
+    <select id="rating">
+      <option value="5">★★★★★</option>
+      <option value="4">★★★★☆</option>
+      <option value="3">★★★☆☆</option>
+      <option value="2">★★☆☆☆</option>
+      <option value="1">★☆☆☆☆</option>
+    </select>
+
+    <label>📝 備考</label>
+    <textarea id="note" rows="3"></textarea>
+
+    <button class="submit-btn">記録を保存する</button>
+  </div>
+
+  <!-- Firebase SDK + Google Maps -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: 
+      authDomain: 
+      projectId: 
+      storageBucket: 
+      messagingSenderId: 
+      appId: 
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.querySelector(".submit-btn").addEventListener("click", async () => {
+      const record = {
+        date: document.getElementById("tourDate").value,
+        departure: document.getElementById("departure").value,
+        destination: document.getElementById("destination").value,
+        distance: document.getElementById("distance").value,
+        startTime: document.getElementById("startTime").value,
+        endTime: document.getElementById("endTime").value,
+        cost: document.getElementById("cost").value,
+        route: document.getElementById("route").value,
+        rating: document.getElementById("rating").value,
+        note: document.getElementById("note").value,
+        timestamp: new Date()
+      };
+
+      try {
+        await addDoc(collection(db, "records"), record);
+        alert("記録を保存しました！");
+      } catch (e) {
+        console.error("エラー:", e);
+        alert("保存に失敗しました");
+      }
+    });
+
+    // Google Maps API連携
+    let map;
+    let departureMarker, destinationMarker;
+    let geocoder;
+
+    window.initMap = function () {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 35.6895, lng: 139.6917 },
+        zoom: 8
+      });
+      geocoder = new google.maps.Geocoder();
+    };
+
+    window.showRoute = function () {
+      const departure = document.getElementById("departure").value;
+      const destination = document.getElementById("destination").value;
+
+      if (!departure || !destination) {
+        alert("出発地と目的地を入力してください");
+        return;
+      }
+
+      geocoder.geocode({ address: departure }, function(results, status) {
+        if (status === "OK") {
+          const loc = results[0].geometry.location;
+          if (departureMarker) departureMarker.setMap(null);
+          departureMarker = new google.maps.Marker({ map, position: loc, label: "出" });
+          map.setCenter(loc);
+        } else {
+          alert("出発地の座標取得失敗: " + status);
+        }
+      });
+
+      geocoder.geocode({ address: destination }, function(results, status) {
+        if (status === "OK") {
+          const loc = results[0].geometry.location;
+          if (destinationMarker) destinationMarker.setMap(null);
+          destinationMarker = new google.maps.Marker({ map, position: loc, label: "目" });
+        } else {
+          alert("目的地の座標取得失敗: " + status);
+        }
+      });
+    };
+  </script>
+
+  <!-- Google Maps API（APIキー付き） -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDycuf452rX9Pn1LY4je5Fm-rnD7qpANDw&callback=initMap" async defer></script>
+  
+</body>
+</html>
