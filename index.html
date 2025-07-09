@@ -1,201 +1,127 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Touring Record</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- ローディングロゴ -->
+  <!-- スプラッシュロゴ -->
   <div id="splash">
-    <img src="Touring Record ロゴ.png" alt="Touring Record Logo" id="logo">
+    <img src="TouringRecord.png" alt="Touring Record Logo" id="logo">
   </div>
 
-  <!-- メインアプリ画面（最初は非表示） -->
+  <!-- メインフォーム画面 -->
   <div id="main" style="display: none;">
-    <!-- ↓ここにフォーム本体やマップなどを入れる -->
-    <h1 style="text-align:center;">🏍 Touring Record フォーム本体</h1>
+    <section id="form-section">
+  <!-- フォームの中身 -->
+</section>
+
+    <header>
+      <h1></h1>
+      <p></p>
+    </header>
+
+    <div class="container">
+      <form action="insert.php" method="post">
+        <label>📅 日付</label>
+        <input type="date" name="date" required>
+
+        <label>📍 出発地</label>
+        <input type="text" name="departure" placeholder="例：横浜駅" required>
+
+        <label>📍 目的地</label>
+        <input type="text" name="destination" placeholder="例：芦ノ湖スカイライン" required>
+
+        <button type="button" onclick="showRoute()">📌 地図に表示</button>
+        <div id="map"></div>
+
+        <label>📏 総距離（km）</label>
+        <input type="number" name="distance">
+
+        <label>⏰ 出発・帰宅時刻・所要時間</label>
+<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+  <div>
+    <small>出発</small>
+    <input type="time" name="startTime" id="startTime">
+  </div>
+  <div>
+    <small>帰宅</small>
+    <input type="time" name="endTime" id="endTime">
+  </div>
+  <div>
+    <small>所要時間</small>
+    <input type="text" id="duration" readonly style="background-color: #eee;">
+  </div>
+</div>
+
+
+        <<label>💸 費用（目安）</label>
+        <select name="cost">
+          <option value="1000未満">1000円未満</option>
+          <option value="1000-2000">1000〜2000円</option>
+          <option value="2000-3000">2000〜3000円</option>
+          <option value="3000-4000">3000〜4000円</option>
+          <option value="4000-5000">4000〜5000円</option>
+          <option value="5000-6000">5000〜6000円</option>
+          <option value="6000-7000">6000〜7000円</option>
+          <option value="7000-8000">7000〜8000円</option>
+          <option value="8000-9000">8000〜9000円</option>
+          <option value="9000-10000">9000〜10000円</option>
+          <option value="10000-20000">10000〜20000円</option>
+          <option value="20000-30000">20000〜30000円</option>
+          <option value="30000-40000">30000〜40000円</option>
+          <option value="40000-50000">40000〜50000円</option>
+          <option value="50000以上">50000円以上</option>
+        </select>
+        
+
+        <label>🛣️ コース（経由地を追加・削除できます）</label>
+        <div id="routeContainer">
+          <div class="route-input">
+            <input type="text" name="route[]" placeholder="例：横浜駅">
+          </div>
+        </div>
+        <button type="button" onclick="addRouteField()">＋ 経由地を追加</button>
+        
+
+        <label>🌟 満足度</label>
+        <select name="rating">
+          <option value="5">★★★★★</option>
+          <option value="4">★★★★☆</option>
+          <option value="3">★★★☆☆</option>
+          <option value="2">★★☆☆☆</option>
+          <option value="1">★☆☆☆☆</option>
+        </select>
+
+        <label>📝 備考</label>
+        <textarea name="note" rows="3"></textarea>
+
+        <button type="submit" class="submit-btn">記録を保存する</button>
+      </form>
+    </div>
   </div>
 
-  <script src="app.js"></script>
-</body>
-</html>
+  <script src="main.js"></script>
 
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Touring Record</title>
-  <style>
-    body {
-      background: #eaf7f4;
-      font-family: sans-serif;
-      margin: 0;
-    }
-
-    header {
-      background: #4caf50;
-      color: white;
-      text-align: center;
-      padding: 1em;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    label, input, textarea, select, button {
-      display: block;
-      width: 100%;
-      margin-top: 12px;
-      font-size: 16px;
-    }
-
-    input, textarea, select {
-      padding: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
-    textarea {
-      resize: vertical;
-    }
-
-    .submit-btn {
-      background: #8d6e63;
-      color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      margin-top: 20px;
-      cursor: pointer;
-    }
-
-    .submit-btn:hover {
-      background: #6d4c41;
-    }
-
-    #map {
-      height: 300px;
-      width: 100%;
-      margin-top: 20px;
-      border-radius: 10px;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>🏍 Touring Record</h1>
-    <p>あなたのツーリングを記録しよう</p>
-  </header>
-
-  <div class="container">
-    <label>📅 日付</label>
-    <input type="date" id="tourDate">
-
-    <label>📍 出発地</label>
-    <input type="text" id="departure" placeholder="例：横浜駅">
-
-    <label>📍 目的地</label>
-    <input type="text" id="destination" placeholder="例：芦ノ湖スカイライン">
-
-    <button onclick="showRoute()">📌 地図に表示</button>
-    <div id="map"></div>
-
-    <label>📏 距離（km）</label>
-    <input type="number" id="distance">
-
-    <label>⏰ 出発時間</label>
-    <input type="time" id="startTime">
-
-    <label>⏰ 帰宅時間</label>
-    <input type="time" id="endTime">
-
-    <label>💸 費用（円）</label>
-    <input type="number" id="cost">
-
-    <label>🛣️ コース</label>
-    <textarea id="route" rows="3"></textarea>
-
-    <label>🌟 満足度</label>
-    <select id="rating">
-      <option value="5">★★★★★</option>
-      <option value="4">★★★★☆</option>
-      <option value="3">★★★☆☆</option>
-      <option value="2">★★☆☆☆</option>
-      <option value="1">★☆☆☆☆</option>
-    </select>
-
-    <label>📝 備考</label>
-    <textarea id="note" rows="3"></textarea>
-
-    <button class="submit-btn">記録を保存する</button>
-  </div>
-
-  <!-- Firebase SDK + Google Maps -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: 
-      authDomain: 
-      projectId: 
-      storageBucket: 
-      messagingSenderId: 
-      appId: 
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    document.querySelector(".submit-btn").addEventListener("click", async () => {
-      const record = {
-        date: document.getElementById("tourDate").value,
-        departure: document.getElementById("departure").value,
-        destination: document.getElementById("destination").value,
-        distance: document.getElementById("distance").value,
-        startTime: document.getElementById("startTime").value,
-        endTime: document.getElementById("endTime").value,
-        cost: document.getElementById("cost").value,
-        route: document.getElementById("route").value,
-        rating: document.getElementById("rating").value,
-        note: document.getElementById("note").value,
-        timestamp: new Date()
-      };
-
-      try {
-        await addDoc(collection(db, "records"), record);
-        alert("記録を保存しました！");
-      } catch (e) {
-        console.error("エラー:", e);
-        alert("保存に失敗しました");
-      }
-    });
-
-    // Google Maps API連携
+  <!-- Google Maps API & JS -->
+  <script>
     let map;
     let departureMarker, destinationMarker;
     let geocoder;
 
-    window.initMap = function () {
+    function initMap() {
       map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 35.6895, lng: 139.6917 },
         zoom: 8
       });
       geocoder = new google.maps.Geocoder();
-    };
+    }
 
-    window.showRoute = function () {
-      const departure = document.getElementById("departure").value;
-      const destination = document.getElementById("destination").value;
+    function showRoute() {
+      const departure = document.querySelector("input[name='departure']").value;
+      const destination = document.querySelector("input[name='destination']").value;
 
       if (!departure || !destination) {
         alert("出発地と目的地を入力してください");
@@ -208,8 +134,6 @@
           if (departureMarker) departureMarker.setMap(null);
           departureMarker = new google.maps.Marker({ map, position: loc, label: "出" });
           map.setCenter(loc);
-        } else {
-          alert("出発地の座標取得失敗: " + status);
         }
       });
 
@@ -218,15 +142,85 @@
           const loc = results[0].geometry.location;
           if (destinationMarker) destinationMarker.setMap(null);
           destinationMarker = new google.maps.Marker({ map, position: loc, label: "目" });
-        } else {
-          alert("目的地の座標取得失敗: " + status);
         }
       });
-    };
+    }
   </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
 
-  <!-- Google Maps API（APIキー付き） -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDycuf452rX9Pn1LY4je5Fm-rnD7qpANDw&callback=initMap" async defer></script>
+  <script>
+    window.addEventListener("load", () => {
+      const startTimeInput = document.getElementById("startTime");
+      const endTimeInput = document.getElementById("endTime");
+      const durationInput = document.getElementById("duration");
+    
+      function updateDuration() {
+        const start = startTimeInput.value;
+        const end = endTimeInput.value;
+    
+        if (start && end) {
+          const [sh, sm] = start.split(":").map(Number);
+          const [eh, em] = end.split(":").map(Number);
+    
+          let startMins = sh * 60 + sm;
+          let endMins = eh * 60 + em;
+    
+          // 日またぎ対策（22:00 → 01:00）
+          if (endMins < startMins) {
+            endMins += 24 * 60;
+          }
+    
+          const diffMins = endMins - startMins;
+          const hours = Math.floor(diffMins / 60);
+          const minutes = diffMins % 60;
+    
+          durationInput.value = `${hours}時間${minutes}分`;
+        } else {
+          durationInput.value = "";
+        }
+      }
+    
+      startTimeInput.addEventListener("input", updateDuration);
+      endTimeInput.addEventListener("input", updateDuration);
+    });
+    </script>
+
+<script>
+  function addRouteField() {
+    const container = document.getElementById("routeContainer");
   
+    const wrapper = document.createElement("div");
+    wrapper.className = "route-input";
+    wrapper.style.display = "flex";
+    wrapper.style.alignItems = "center";
+    wrapper.style.marginTop = "8px";
+  
+    const input = document.createElement("input");
+    input.type = "text";
+    input.name = "route[]";
+    input.placeholder = "例：経由地";
+    input.style.flex = "1";
+    input.style.marginRight = "10px";
+  
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.textContent = "✖︎";
+    removeBtn.style.background = "#e57373";
+    removeBtn.style.color = "white";
+    removeBtn.style.border = "none";
+    removeBtn.style.padding = "6px 10px";
+    removeBtn.style.borderRadius = "6px";
+    removeBtn.style.cursor = "pointer";
+    removeBtn.onclick = () => container.removeChild(wrapper);
+  
+    wrapper.appendChild(input);
+    wrapper.appendChild(removeBtn);
+    container.appendChild(wrapper);
+  }
+  </script>
+  
+  
+    
 </body>
 </html>
+
