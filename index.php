@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Touring Record</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- スプラッシュロゴ -->
+  <div id="splash">
+    <img src="Touring Record ロゴ.png" alt="Touring Record Logo" id="logo">
+  </div>
+
+  <!-- メインフォーム画面 -->
+  <div id="main" style="display: none;">
+    <header>
+      <h1>🏍 Touring Record</h1>
+      <p>あなたのツーリングを記録しよう</p>
+    </header>
+
+    <div class="container">
+    <form action="insert.php" method="post">
+        <label>📅 日付</label>
+        <input type="date" name="date" required>
+
+        <label>📍 出発地</label>
+        <input type="text" name="departure" placeholder="例：横浜駅" required>
+
+        <label>📍 目的地</label>
+        <input type="text" name="destination" placeholder="例：芦ノ湖スカイライン" required>
+
+        <button type="button" onclick="showRoute()">📌 地図に表示</button>
+        <div id="map"></div>
+
+        <label>📏 総距離（km）</label>
+        <input type="number" name="distance">
+
+        <label>⏰ 出発・帰宅時刻 & 所要時間</label>
+<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+  <div>
+
+  </div>
+  <div>
+    <small>所要時間</small>
+    <input type="text" id="duration" readonly style="background-color: #eee;">
+  </div>
+</div>
+
+
+<label>💸 費用（目安）</label>
+<select name="cost">
+  <option value="1000未満">1000円未満</option>
+  <option value="1000-2000">1000〜2000円</option>
+  <option value="2000-3000">2000〜3000円</option>
+  <option value="3000-4000">3000〜4000円</option>
+  <option value="4000-5000">4000〜5000円</option>
+  <option value="5000-6000">5000〜6000円</option>
+  <option value="6000-7000">6000〜7000円</option>
+  <option value="7000-8000">7000〜8000円</option>
+  <option value="8000-9000">8000〜9000円</option>
+  <option value="9000-10000">9000〜10000円</option>
+  <option value="10000-20000">10000〜20000円</option>
+  <option value="20000-30000">20000〜30000円</option>
+  <option value="30000-40000">30000〜40000円</option>
+  <option value="40000-50000">40000〜50000円</option>
+  <option value="50000以上">50000円以上</option>
+</select>
+
+<label>🛣️ コース（経由地を追加・削除できます）</label>
+<div id="routeContainer">
+  <div class="route-input">
+    <input type="text" name="route[]" placeholder="例：横浜駅">
+  </div>
+</div>
+<button type="button" onclick="addRouteField()">＋ 経由地を追加</button>
+
+
+        <label>🌟 満足度</label>
+        <select name="rating">
+          <option value="5">★★★★★</option>
+          <option value="4">★★★★☆</option>
+          <option value="3">★★★☆☆</option>
+          <option value="2">★★☆☆☆</option>
+          <option value="1">★☆☆☆☆</option>
+        </select>
+
+        <label>📝 備考</label>
+        <textarea name="note" rows="3"></textarea>
+
+        <label>🖼️ 写真URL（任意）</label>
+        <input type="url" name="photo_url" placeholder="https://example.com/photo.jpg">
+
+        <button type="submit" class="submit-btn">記録を保存する</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+
+  <!-- Google Maps API & JS -->
+  <script>
+    let map;
+    let departureMarker, destinationMarker;
+    let geocoder;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 35.6895, lng: 139.6917 },
+        zoom: 8
+      });
+      geocoder = new google.maps.Geocoder();
+    }
+
+    function showRoute() {
+      const departure = document.querySelector("input[name='departure']").value;
+      const destination = document.querySelector("input[name='destination']").value;
+
+      if (!departure || !destination) {
+        alert("出発地と目的地を入力してください");
+        return;
+      }
+
+      geocoder.geocode({ address: departure }, function(results, status) {
+        if (status === "OK") {
+          const loc = results[0].geometry.location;
+          if (departureMarker) departureMarker.setMap(null);
+          departureMarker = new google.maps.Marker({ map, position: loc, label: "出" });
+          map.setCenter(loc);
+        }
+      });
+
+      geocoder.geocode({ address: destination }, function(results, status) {
+        if (status === "OK") {
+          const loc = results[0].geometry.location;
+          if (destinationMarker) destinationMarker.setMap(null);
+          destinationMarker = new google.maps.Marker({ map, position: loc, label: "目" });
+        }
+      });
+    }
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+  <script>
+  const startTimeInput = document.getElementById("startTime");
+  const endTimeInput = document.getElementById("endTime");
+  const durationInput = document.getElementById("duration");
+
+  function updateDuration() {
+    const start = startTimeInput.value;
+    const end = endTimeInput.value;
+
+    if (start && end) {
+      const [sh, sm] = start.split(":").map(Number);
+      const [eh, em] = end.split(":").map(Number);
+
+      let startMins = sh * 60 + sm;
+      let endMins = eh * 60 + em;
+
+      // 日を跨いだ場合（例：22:00出発 → 02:00帰宅）
+      if (endMins < startMins) {
+        endMins += 24 * 60;
+      }
+
+      const diffMins = endMins - startMins;
+      const hours = Math.floor(diffMins / 60);
+      const minutes = diffMins % 60;
+
+      durationInput.value = `${hours}時間${minutes}分`;
+    } else {
+      durationInput.value = "";
+    }
+  }
+
+  startTimeInput.addEventListener("input", updateDuration);
+  endTimeInput.addEventListener("input", updateDuration);
+</script>
+
+</body>
+</html>
