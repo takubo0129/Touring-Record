@@ -36,30 +36,19 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <img src="<?= htmlspecialchars($r['photo_url']) ?>" alt="ツーリング写真" class="photo">
             </div>
           <?php endif; ?>
-<<<<<<< HEAD
           < class="note">
-=======
-          <div class="note">
->>>>>>> 082cf159381a1f1c8d6815194884edb16c4947e6
             <p><strong>ルート：</strong><?= nl2br(htmlspecialchars($r['route'])) ?></p>
             <p><strong>費用：</strong><?= htmlspecialchars($r['cost']) ?> 円</p>
             <p><strong>出発〜帰宅：</strong> <?= htmlspecialchars($r['start_time']) ?> - <?= htmlspecialchars($r['end_time']) ?></p>
             <p><strong>メモ：</strong><?= nl2br(htmlspecialchars($r['comment'])) ?></p>
-<<<<<<< HEAD
             <div style="margin-top: 8px;">
   <a href="edit.php?id=<?= $r['id'] ?>">✏️編集</a>
   <a href="delete.php?id=<?= $r['id'] ?>">🗑削除</a>
 </div>
-=======
->>>>>>> 082cf159381a1f1c8d6815194884edb16c4947e6
           </div>
         </div>
       <?php endforeach; ?>
     <?php endif; ?>
   </div>
 </body>
-<<<<<<< HEAD
 </html>
-=======
-</html>
->>>>>>> 082cf159381a1f1c8d6815194884edb16c4947e6
